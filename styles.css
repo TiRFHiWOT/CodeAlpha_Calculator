@@ -1,0 +1,214 @@
+/* CodeAlpha Task 2 — Calculator
+   Same design language as Task 1 Image Gallery:
+   Poppins, solid blue, flat, no gradients, no shadows.
+   Dark: deep navy. Light: soft pale blue. */
+
+:root {
+  --bg: #0a1128;
+  --surface: #111c3d;
+  --surface-2: #1a2748;
+  --text: #ffffff;
+  --muted: #9fb3d9;
+  --accent: #3b82f6;
+  --accent-strong: #2563eb;
+  --appbar-bg: rgba(10, 17, 40, 0.95);
+  --border: #24335c;
+  --key-hover: #22315c;
+}
+
+[data-theme="light"] {
+  --bg: #eef4ff;
+  --surface: #ffffff;
+  --surface-2: #dbe7ff;
+  --text: #0a1128;
+  --muted: #5b6b8c;
+  --accent: #2563eb;
+  --accent-strong: #2563eb;
+  --appbar-bg: rgba(10, 17, 40, 0.9);
+  --border: #c9d8f5;
+  --key-hover: #e6efff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+}
+
+/* Top bar — same as the gallery: navy in both modes, white wordmark */
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 3.5rem;
+  margin: 0 -16px;
+  padding: 0 16px;
+  background: var(--appbar-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand { display: flex; align-items: center; gap: 0.6rem; }
+
+.brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.55rem;
+  background: var(--accent);
+}
+
+.brand-name {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.icon-btn {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: #ffffff;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.icon-btn:hover { background: rgba(255, 255, 255, 0.12); }
+
+.appbar-actions { display: flex; gap: 8px; }
+
+/* Memory indicator — only shows when a value is stored */
+.mem-indicator {
+  position: absolute;
+  top: 10px;
+  left: 8px;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.3rem;
+  text-align: center;
+}
+
+/* Slim utility row — brackets, memory, copy. Small, out of the way. */
+.util-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.util-key {
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.util-key:hover, .util-key:focus-visible { background: var(--key-hover); outline: 2px solid var(--accent); outline-offset: 1px; }
+.util-key:active { transform: scale(0.97); }
+
+/* History — hidden until the clock button is tapped */
+.history { border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px; }
+.history-head { display: flex; align-items: center; justify-content: space-between; font-weight: 600; }
+.history-clear { border: none; background: none; color: var(--accent); font-family: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+.history-list { list-style: none; margin: 8px 0 0; padding: 0; max-height: 180px; overflow-y: auto; }
+.history-list li { display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 8px 4px; border: none; border-bottom: 1px solid var(--border); background: none; color: var(--text); font-family: inherit; font-size: 0.95rem; text-align: left; cursor: pointer; }
+.history-list li span:last-child { color: var(--accent); font-weight: 600; white-space: nowrap; }
+.history-empty { margin: 8px 0 0; color: var(--muted); font-size: 0.9rem; }
+
+/* Calculator card */
+.calculator {
+  margin-top: 24px;
+  padding: 20px 16px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+
+.display {
+  position: relative;
+  min-height: 96px;
+  padding: 8px 8px 12px;
+  text-align: right;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.display::-webkit-scrollbar { display: none; }
+
+.expression {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.25;
+  word-break: break-all;
+  white-space: normal;
+}
+
+.expression.error { color: #f87171; font-size: 1.5rem; }
+
+.live-result {
+  min-height: 1.6rem;
+  margin-top: 4px;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.live-result:empty { display: none; }
+
+/* Keys */
+.keys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.key {
+  height: 64px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1.35rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.key:hover, .key:focus-visible { background: var(--key-hover); outline: 2px solid var(--accent); outline-offset: 1px; }
+.key:active { transform: scale(0.97); }
+
+.key.util { color: var(--accent); font-weight: 600; }
+.key.op { color: var(--accent); font-weight: 600; }
+.key.equals { background: var(--accent-strong); border-color: var(--accent-strong); color: #ffffff; font-weight: 600; }
+.key.equals:hover { background: var(--accent); }
+
+@media (max-width: 380px) {
+  .key { height: 58px; font-size: 1.2rem; }
+  .expression { font-size: 1.7rem; }
+}
